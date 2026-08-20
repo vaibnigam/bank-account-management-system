@@ -33,7 +33,7 @@ public class DataLoader {
                 String mobileNumber = parts[2].trim();
                 double balance = Double.parseDouble(parts[3].trim());
 
-                bankService.openAccount(accountNumber, holderName, mobileNumber, balance);
+                bankService.loadAccountDirectly(accountNumber, holderName, mobileNumber, balance);
                 loadedCount++;
             }
 

@@ -44,22 +44,23 @@ public class Main {
 			switch (choice) {
 
 			case 1:
-				System.out.print("Enter Account Number: ");
-				String accountNumber = scanner.nextLine();
+			    System.out.print("Enter Holder Name: ");
+			    String holderName = scanner.nextLine();
 
-				System.out.print("Enter Holder Name: ");
-				String holderName = scanner.nextLine();
+			    System.out.print("Enter Mobile Number: ");
+			    String mobileNumber = scanner.nextLine();
 
-				System.out.print("Enter Mobile Number: ");
-				String mobileNumber = scanner.nextLine();
+			    System.out.print("Enter Initial Balance: ");
+			    double initialBalance = scanner.nextDouble();
+			    scanner.nextLine();
 
-				System.out.print("Enter Initial Balance: ");
-				double initialBalance = scanner.nextDouble();
-				scanner.nextLine();
-
-				bankService.openAccount(accountNumber, holderName, mobileNumber, initialBalance);
-				System.out.println("Account opened successfully!");
-				break;
+			    Account newAccount = bankService.openAccount(holderName, mobileNumber, initialBalance);
+			    if (newAccount == null) {
+			        System.out.println("Account creation failed. Check name, mobile number (10 digits, starting 6-9), and balance (must be non-negative).");
+			    } else {
+			        System.out.println("Account opened successfully! Your account number is: " + newAccount.getAccountNumber());
+			    }
+			    break;
 
 			case 2:
 				System.out.print("Enter Account Number: ");

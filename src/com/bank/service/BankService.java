@@ -17,11 +17,30 @@ public class BankService {
 		this.accountRepository = new AccountRepository();
 		this.transactionRepository = new TransactionRepository();
 	}
-
-	public void openAccount(String accountNumber, String holderName, String mobileNumber, double initialBalance) {
+	private int nextAccountNumber = 1101;
+	
+	public Account openAccount(String holderName, String mobileNumber, double initialBalance) {
+		if(holderName==null || holderName.trim().isEmpty()) {
+			return null;
+		}
+		if(mobileNumber==null || !mobileNumber.matches("[6-9][0-9]{9}")) {
+			return null;
+		}
+		if (initialBalance < 0) {
+	        return null;
+	    }
+		String accountNumber = "AC" + nextAccountNumber;
+	    nextAccountNumber++;
 		Account newAccount = new Account(accountNumber, holderName, mobileNumber, initialBalance);
 		accountRepository.addAccount(newAccount);
+		return newAccount;
 	}
+	//for data load
+	public void loadAccountDirectly(String accountNumber, String holderName, String mobileNumber, double balance) {
+	    Account newAccount = new Account(accountNumber, holderName, mobileNumber, balance);
+	    accountRepository.addAccount(newAccount);
+	}
+	
 
 	public boolean deposit(String accountNumber, double amount) {
 		Account account = accountRepository.findByAccountNumber(accountNumber);
