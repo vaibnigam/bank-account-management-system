@@ -71,7 +71,7 @@ public class Main {
 				scanner.nextLine();
 
 				boolean depositSuccess = bankService.deposit(depositAccountNumber, depositAmount);
-				System.out.println(depositSuccess ? "Deposit successful!" : "Deposit failed. Account not found.");
+				System.out.println(depositSuccess ? "Deposit successful!" : "Deposit failed. Account not found or inactive.");
 				break;
 
 			case 3:

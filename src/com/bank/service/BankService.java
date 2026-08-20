@@ -17,35 +17,39 @@ public class BankService {
 		this.accountRepository = new AccountRepository();
 		this.transactionRepository = new TransactionRepository();
 	}
+
 	private int nextAccountNumber = 1101;
-	
+
 	public Account openAccount(String holderName, String mobileNumber, double initialBalance) {
-		if(holderName==null || holderName.trim().isEmpty()) {
+		if (holderName == null || holderName.trim().isEmpty()) {
 			return null;
 		}
-		if(mobileNumber==null || !mobileNumber.matches("[6-9][0-9]{9}")) {
+		if (mobileNumber == null || !mobileNumber.matches("[6-9][0-9]{9}")) {
 			return null;
 		}
 		if (initialBalance < 0) {
-	        return null;
-	    }
+			return null;
+		}
 		String accountNumber = "AC" + nextAccountNumber;
-	    nextAccountNumber++;
+		nextAccountNumber++;
 		Account newAccount = new Account(accountNumber, holderName, mobileNumber, initialBalance);
 		accountRepository.addAccount(newAccount);
 		return newAccount;
 	}
-	//for data load
+
+	// for data load
 	public void loadAccountDirectly(String accountNumber, String holderName, String mobileNumber, double balance) {
-	    Account newAccount = new Account(accountNumber, holderName, mobileNumber, balance);
-	    accountRepository.addAccount(newAccount);
+		Account newAccount = new Account(accountNumber, holderName, mobileNumber, balance);
+		accountRepository.addAccount(newAccount);
 	}
-	
+
+	private boolean isActive(Account account) {
+		return account != null && account.getStatus() == AccountStatus.ACTIVE;
+	}
 
 	public boolean deposit(String accountNumber, double amount) {
 		Account account = accountRepository.findByAccountNumber(accountNumber);
-
-		if (account == null) {
+		if (!isActive(account)) {
 			return false;
 		}
 
@@ -61,7 +65,7 @@ public class BankService {
 	public boolean withdraw(String accountNumber, double amount) {
 		Account account = accountRepository.findByAccountNumber(accountNumber);
 
-		if (account == null || account.getBalance() < amount) {
+		if (!isActive(account) || account.getBalance() < amount) {
 			return false;
 		}
 		account.setBalance(account.getBalance() - amount);
@@ -73,7 +77,7 @@ public class BankService {
 	}
 
 	private boolean transferBetweenAccounts(Account from, Account to, double amount) {
-		if (to == null || from == null || from.getBalance() < amount) {
+		if (!isActive(to) || !isActive(from) || from.getBalance() < amount) {
 			return false;
 		}
 		from.setBalance(from.getBalance() - amount);
@@ -113,16 +117,17 @@ public class BankService {
 		account.setStatus(AccountStatus.CLOSED);
 		return true;
 	}
+
 	public Account getAccountDetails(String accountNumber) {
 		return accountRepository.findByAccountNumber(accountNumber);
 	}
 
 	public List<Transaction> getTransactionHistory(String accountNumber) {
-	    return transactionRepository.getTransactionsByAccount(accountNumber);
+		return transactionRepository.getTransactionsByAccount(accountNumber);
 	}
 
 	public List<Account> getAllAccounts() {
-	    return accountRepository.getAllAccounts();
+		return accountRepository.getAllAccounts();
 	}
 
 }
