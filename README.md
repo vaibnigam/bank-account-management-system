@@ -20,15 +20,15 @@ Main (Presentation) → BankService (Business Logic) → AccountRepository / Tra
 
 ## Features
 
-- Open an account
-- Deposit funds
-- Withdraw funds (blocked if it would overdraw the account)
+- Open an account — holder name, mobile number, and initial balance are validated before creation, and the account number is generated automatically (never entered by the user)
+- Deposit funds (rejected for inactive accounts or non-positive amounts)
+- Withdraw funds (rejected if it would overdraw the account, for inactive accounts, or for non-positive amounts)
 - Transfer funds between two accounts by account number
 - Send funds via UPI — transfer by mobile number instead of account number
 - View full details of a single account
 - View the complete transaction history of an account
 - View all accounts
-- Close an account (only permitted when the balance is exactly zero)
+- Close an account (only permitted when active and the balance is exactly zero)
 - Bulk-load accounts from a `.txt` file at startup
 
 ## Project Structure
@@ -84,6 +84,15 @@ Closing an account does not remove it from the repository — it transitions `Ac
 
 ### A single, shared transfer engine
 Both `transfer()` (by account number) and `transferByMobile()` (UPI-style, by mobile number) resolve their source and destination accounts differently, but both delegate the actual balance movement and transaction recording to a single private method, `transferBetweenAccounts()`. This keeps the transfer logic — balance validation, the debit/credit pair, and the `TRANSFER_OUT`/`TRANSFER_IN` transaction pair — defined in exactly one place, so a future change to transfer rules (e.g. a transfer fee) only needs to be made once.
+
+### Account numbers are system-generated, never user-supplied
+`openAccount()` does not accept an account number as input. Instead, `BankService` maintains an internal counter and generates each new account number sequentially (e.g. `AC1101`, `AC1102`, ...). This removes duplicate-account-number handling entirely — a duplicate can never occur because the caller never chooses the identifier. The counter's starting value is set above the highest account number present in the seed data file, so newly created accounts never collide with the accounts loaded at startup. Bulk-loaded accounts from the data file bypass this counter via a separate `loadAccountDirectly()` method, since their account numbers are already fixed by the source file.
+
+### Validation at account creation
+`openAccount()` rejects the request (returning `null`) if the holder name is blank, the mobile number does not match a 10-digit pattern starting with 6-9, or the initial balance is negative. `Main` reports a single, combined failure message rather than pinpointing which check failed, keeping the validation logic entirely inside the service layer.
+
+### Reusable guard-clause helpers
+Two private helper methods, `isActive()` and `isValidAmount()`, centralize checks that are repeated across `deposit()`, `withdraw()`, and `transferBetweenAccounts()`: an account must be `ACTIVE` to be debited or credited, and every amount must be strictly positive. Extracting these into named helpers (rather than duplicating the raw conditions in each method) means a future change to either rule only needs to be made once, and keeps each operation's guard clause readable as a single `if` statement.
 
 ### Dual balance-check before mutation
 Both `withdraw()` and `transferBetweenAccounts()` validate sufficient balance before mutating any state, and resolve the account only once per call rather than looking it up twice — avoiding redundant repository lookups and ensuring the balance check and the mutation always operate on the same object reference.
