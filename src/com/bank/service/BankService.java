@@ -47,9 +47,13 @@ public class BankService {
 		return account != null && account.getStatus() == AccountStatus.ACTIVE;
 	}
 
+	private boolean isValidAmount(double amount) {
+		return amount > 0;
+	}
+
 	public boolean deposit(String accountNumber, double amount) {
 		Account account = accountRepository.findByAccountNumber(accountNumber);
-		if (!isActive(account)) {
+		if (!isActive(account) || !isValidAmount(amount)) {
 			return false;
 		}
 
@@ -65,7 +69,7 @@ public class BankService {
 	public boolean withdraw(String accountNumber, double amount) {
 		Account account = accountRepository.findByAccountNumber(accountNumber);
 
-		if (!isActive(account) || account.getBalance() < amount) {
+		if (!isActive(account) || !isValidAmount(amount) || account.getBalance() < amount) {
 			return false;
 		}
 		account.setBalance(account.getBalance() - amount);
@@ -77,7 +81,7 @@ public class BankService {
 	}
 
 	private boolean transferBetweenAccounts(Account from, Account to, double amount) {
-		if (!isActive(to) || !isActive(from) || from.getBalance() < amount) {
+		if (!isActive(to) || !isActive(from) || !isValidAmount(amount) || from.getBalance() < amount) {
 			return false;
 		}
 		from.setBalance(from.getBalance() - amount);
