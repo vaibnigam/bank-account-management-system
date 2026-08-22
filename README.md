@@ -4,7 +4,7 @@ A console-based Bank Account Management System built in core Java, using the Col
 
 ## Overview
 
-This application allows a bank administrator to manage customer accounts — opening accounts, processing deposits and withdrawals, transferring funds between accounts (by account number or by mobile number, UPI-style), viewing account and transaction details, and closing accounts. Every balance-affecting operation is recorded as an immutable `Transaction`, giving each account a full, queryable history .
+This application allows a bank administrator to manage customer accounts — opening accounts, processing deposits and withdrawals, transferring funds between accounts (by account number or by mobile number, UPI-style), viewing account and transaction details, and closing accounts. Every balance-affecting operation is recorded as an immutable `Transaction`, giving each account a full, queryable history.
 
 ## Architecture
 
@@ -96,3 +96,7 @@ Two private helper methods, `isActive()` and `isValidAmount()`, centralize check
 
 ### Dual balance-check before mutation
 Both `withdraw()` and `transferBetweenAccounts()` validate sufficient balance before mutating any state, and resolve the account only once per call rather than looking it up twice — avoiding redundant repository lookups and ensuring the balance check and the mutation always operate on the same object reference.
+
+## Summary
+
+This is the third and most advanced project in the series. It builds on the `HashMap`-backed, multi-entity coordination introduced in the Hostel Management System and adds three new patterns: enum-driven state (eliminating an entire class of string-typo bugs), an append-only transaction ledger that mirrors how real financial systems preserve history, and a proper validation layer with reusable guard-clause helpers, backing a single, DRY transfer engine shared by both account-number and UPI-style transfers.
