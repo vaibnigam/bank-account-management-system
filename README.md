@@ -4,7 +4,7 @@ A console-based Bank Account Management System built in core Java, using the Col
 
 ## Overview
 
-This application allows a bank administrator to manage customer accounts — opening accounts, processing deposits and withdrawals, transferring funds between accounts (by account number or by mobile number, UPI-style), viewing account and transaction details, and closing accounts. Every balance-affecting operation is recorded as an immutable `Transaction`, giving each account a full, queryable history.
+This application allows a bank administrator to manage customer accounts — opening accounts, processing deposits and withdrawals, transferring funds between accounts (by account number or by mobile number, UPI-style), viewing account and transaction details, and closing accounts. Every balance-affecting operation is recorded as an immutable `Transaction`, giving each account a full, queryable history .
 
 ## Architecture
 
